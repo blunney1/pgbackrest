@@ -14,6 +14,25 @@ use File::Basename qw(dirname basename);
 use Getopt::Long qw(GetOptions);
 use Storable qw(dclone);
 
+use Memory::Usage;
+my $oMemoryUsage = Memory::Usage->new();
+
+sub memRecord
+{
+    my $strDescription = shift;
+
+    $oMemoryUsage->record($strDescription);
+}
+
+push @EXPORT, qw(memRecord);
+
+sub memDump
+{
+    $oMemoryUsage->dump();
+}
+
+push @EXPORT, qw(memDump);
+
 use lib dirname($0) . '/../lib';
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Ini;

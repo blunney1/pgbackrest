@@ -1951,6 +1951,39 @@ sub backupTestRun
                 }
             }
 
+            # Create more tables
+            for (my $iTableIdx = 1; $iTableIdx <= 40000; $iTableIdx++)
+            {
+                $oHostDbMaster->sqlExecute("create table test${iTableIdx} (id int)");
+            }
+
+# Ubuntu 16:
+#
+#  time    vsz (  diff)    rss (  diff) shared (  diff)   code (  diff)   data (  diff)
+#     0  138420 ( 138420)  25308 ( 25308)   8004 (  8004)   1852 (  1852)  17004 ( 17004) startup
+#     1  148028 (  9608)  27080 (  1772)   8448 (   444)   1852 (     0)  18196 (  1192) before manifest build
+#    15  313240 ( 165212)  192140 ( 165060)   8448 (     0)   1852 (     0)  183408 ( 165212) before manifest process
+#    15  313240 (     0)  192140 (     0)   8448 (     0)   1852 (     0)  183408 (     0) before backup queue
+#    44  317668 (  4428)  196344 (  4204)   8448 (     0)   1852 (     0)  187836 (  4428) before process queue
+#   271  321836 (  4168)  196608 (   264)   8448 (     0)   1852 (     0)  192004 (  4168) before process pg_control
+#   271  330032 (  8196)  197268 (   660)   8464 (    16)   1852 (     0)  200200 (  8196) after manifest process
+#
+# CentOS 7:
+#
+#  time    vsz (  diff)    rss (  diff) shared (  diff)   code (  diff)   data (  diff)
+#     0  125732 ( 125732)  20788 ( 20788)   6368 (  6368)      8 (     8)  14228 ( 14228) startup
+#     2  129032 (  3300)  22356 (  1568)   6636 (   268)      8 (     0)  15428 (  1200) before manifest build
+#    19  310832 ( 181800)  203736 ( 181380)   6656 (    20)      8 (     0)  197228 ( 181800) before manifest process
+#    19  310832 (     0)  203736 (     0)   6656 (     0)      8 (     0)  197228 (     0) before backup queue
+#    55  313208 (  2376)  205916 (  2180)   6472 (  -184)      8 (     0)  199604 (  2376) before process queue
+#   284  317424 (  4216)  203748 ( -2168)   4156 ( -2316)      8 (     0)  203820 (  4216) before process pg_control
+#   285  325616 (  8192)  205284 (  1536)   5052 (   896)      8 (     0)  212012 (  8192) after manifest process
+#
+# [root@db-master /]# perl --version
+#
+# This is perl 5, version 16, subversion 3 (v5.16.3) built for x86_64-linux-thread-multi
+# (with 29 registered patches, see perl -V for more detail)
+
             my $oExecuteBackup = $oHostBackup->backupBegin(
                 $strType, 'update during backup',
                 {strTest => TEST_MANIFEST_BUILD, fTestDelay => $fTestDelay});

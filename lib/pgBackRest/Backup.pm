@@ -279,6 +279,8 @@ sub processManifest
         }
     }
 
+    memRecord('before backup queue');
+
     # Iterate all files in the manifest
     foreach my $strFile (
         sort {sprintf("%016d-${b}", $oBackupManifest->numericGet(MANIFEST_SECTION_TARGET_FILE, $b, MANIFEST_SUBKEY_SIZE)) cmp
@@ -407,6 +409,8 @@ sub processManifest
             $lManifestSaveSize = optionGet(OPTION_MANIFEST_SAVE_THRESHOLD);
         }
 
+        memRecord('before process queue');
+
         # Run the backup jobs and process results
         while (my $hyResult = $oBackupProcess->process())
         {
@@ -425,6 +429,8 @@ sub processManifest
             # then the remote might timeout while waiting for a command.
             $oProtocolMaster->keepAlive();
         }
+
+        memRecord('before process pg_control');
 
         # Copy pg_control last - this is required for backups taken during recovery
         if (defined($hFileControl))
@@ -726,6 +732,8 @@ sub process
     }
 
     # Build the manifest
+    memRecord('before manifest build');
+
     $oBackupManifest->build($oFileMaster, $strDbVersion, $strDbMasterPath, $oLastManifest, optionGet(OPTION_ONLINE),
                             $oTablespaceMap, $oDatabaseMap);
     &log(TEST, TEST_MANIFEST_BUILD);
@@ -852,10 +860,14 @@ sub process
     $oBackupManifest->save();
 
     # Perform the backup
+    memRecord('before manifest process');
+
     my $lBackupSizeTotal =
         $self->processManifest(
             $oFileMaster, $strDbMasterPath, $strDbCopyPath, $strType, $strDbVersion, $bCompress, $bHardLink, $oBackupManifest);
     &log(INFO, "${strType} backup size = " . fileSizeFormat($lBackupSizeTotal));
+
+    memRecord('after manifest process');
 
     # Master file object no longer needed
     undef($oFileMaster);

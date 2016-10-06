@@ -273,7 +273,8 @@ sub perlInstall
     elsif ($strOS eq VM_CO7)
     {
         return $strImage .
-            "RUN yum install -y perl perl-JSON-PP perl-Digest-SHA perl-DBD-Pg";
+            "RUN yum install -y perl perl-JSON-PP perl-Digest-SHA perl-DBD-Pg perl-App-cpanminus\n" .
+            "RUN cpanm install --force Memory::Usage";
     }
     elsif ($strOS eq VM_U12 || $strOS eq VM_U14)
     {
@@ -283,7 +284,7 @@ sub perlInstall
     elsif ($strOS eq VM_U16 || $strOS eq VM_D8)
     {
         return $strImage .
-            "RUN apt-get install -y libdbd-pg-perl libdbi-perl";
+            "RUN apt-get install -y libdbd-pg-perl libdbi-perl libmemory-usage-perl";
     }
 
     confess &log(ERROR, "unable to install perl for os '${strOS}'");
