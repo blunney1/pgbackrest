@@ -268,22 +268,22 @@ sub perlInstall
     if ($strOS eq VM_CO6)
     {
         return $strImage .
-            "RUN yum install -y perl perl-Time-HiRes perl-parent perl-JSON perl-Digest-SHA perl-DBD-Pg";
+            "RUN yum install -y perl perl-Time-HiRes perl-parent perl-JSON perl-Digest-SHA perl-DBD-Pg perl-Crypt-OpenSSL-RSA perl-Crypt-OpenSSL-Random";
     }
     elsif ($strOS eq VM_CO7)
     {
         return $strImage .
-            "RUN yum install -y perl perl-JSON-PP perl-Digest-SHA perl-DBD-Pg";
+            "RUN yum install -y perl perl-JSON-PP perl-Digest-SHA perl-DBD-Pg perl-Crypt-OpenSSL-RSA perl-Crypt-OpenSSL-Random";
     }
     elsif ($strOS eq VM_U12 || $strOS eq VM_U14)
     {
         return $strImage .
-            "RUN apt-get install -y libdbd-pg-perl libdbi-perl libnet-daemon-perl libplrpc-perl";
+            "RUN apt-get install -y libdbd-pg-perl libdbi-perl libnet-daemon-perl libplrpc-perl libcrypt-openssl-rsa-perl libcrypt-openssl-random-perl";
     }
     elsif ($strOS eq VM_U16 || $strOS eq VM_D8)
     {
         return $strImage .
-            "RUN apt-get install -y libdbd-pg-perl libdbi-perl";
+            "RUN apt-get install -y libdbd-pg-perl libdbi-perl libcrypt-openssl-rsa-perl libcrypt-openssl-random-perl";
     }
 
     confess &log(ERROR, "unable to install perl for os '${strOS}'");
