@@ -48,7 +48,7 @@ sub new
             {name => 'strLogo', required => false},
             {name => 'strDescription', required => false},
             {name => 'bPretty', default => false},
-            {name => 'strCss'},
+            {name => 'strCss', required => false},
         );
 
     $self->{oBody} = new BackRestDoc::Html::DocHtmlElement(HTML_BODY);
