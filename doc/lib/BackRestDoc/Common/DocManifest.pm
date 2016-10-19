@@ -26,7 +26,11 @@ use constant FILE_MANIFEST                                          => 'manifest
 # Render constants
 ####################################################################################################################################
 use constant RENDER                                                 => 'render';
+use constant RENDER_COMPACT                                         => 'compact';
+    push @EXPORT, qw(RENDER_COMPACT);
 use constant RENDER_FILE                                            => 'file';
+use constant RENDER_PRETTY                                          => 'pretty';
+    push @EXPORT, qw(RENDER_PRETTY);
 
 use constant RENDER_TYPE                                            => 'type';
 use constant RENDER_TYPE_HTML                                       => 'html';
@@ -128,6 +132,8 @@ sub new
 
         # Get the file param
         $${oRenderHash}{file} = $oRender->paramGet(RENDER_FILE, false);
+        $${oRenderHash}{&RENDER_COMPACT} = $oRender->paramGet(RENDER_COMPACT, false, 'n') eq 'y' ? true : false;
+        $${oRenderHash}{&RENDER_PRETTY} = $oRender->paramGet(RENDER_PRETTY, false, 'n') eq 'y' ? true : false;
 
         logDebugMisc
         (

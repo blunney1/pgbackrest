@@ -98,25 +98,31 @@ sub process
     # Assign function parameters, defaults, and log debug info
     my $strOperation = logDebugParam(__PACKAGE__ . '->process');
 
-    # Copy the css file
-    my $strCssFileDestination = "$self->{strHtmlPath}/default.css";
-    copy($self->{strCssFile}, $strCssFileDestination)
-        or confess &log(ERROR, "unable to copy $self->{strCssFile} to ${strCssFileDestination}");
+    my $bPretty = ${$self->{oManifest}->renderGet(RENDER_TYPE_HTML)}{&RENDER_PRETTY};
+    my $bCompact = ${$self->{oManifest}->renderGet(RENDER_TYPE_HTML)}{&RENDER_COMPACT};
 
-    # Copy the favicon file
-    if (defined($self->{strFaviconFile}))
+    if (!$bCompact)
     {
-        my $strFaviconFileDestination = "$self->{strHtmlPath}/" . $self->{oManifest}->variableGet('project-favicon');
-        copy($self->{strFaviconFile}, $strFaviconFileDestination)
-            or confess &log(ERROR, "unable to copy $self->{strFaviconFile} to ${strFaviconFileDestination}");
-    }
+        # Copy the css file
+        my $strCssFileDestination = "$self->{strHtmlPath}/default.css";
+        copy($self->{strCssFile}, $strCssFileDestination)
+            or confess &log(ERROR, "unable to copy $self->{strCssFile} to ${strCssFileDestination}");
 
-    # Copy the project logo file
-    if (defined($self->{strProjectLogoFile}))
-    {
-        my $strProjectLogoFileDestination = "$self->{strHtmlPath}/" . $self->{oManifest}->variableGet('project-logo');
-        copy($self->{strProjectLogoFile}, $strProjectLogoFileDestination)
-            or confess &log(ERROR, "unable to copy $self->{strProjectLogoFile} to ${strProjectLogoFileDestination}");
+        # Copy the favicon file
+        if (defined($self->{strFaviconFile}))
+        {
+            my $strFaviconFileDestination = "$self->{strHtmlPath}/" . $self->{oManifest}->variableGet('project-favicon');
+            copy($self->{strFaviconFile}, $strFaviconFileDestination)
+                or confess &log(ERROR, "unable to copy $self->{strFaviconFile} to ${strFaviconFileDestination}");
+        }
+
+        # Copy the project logo file
+        if (defined($self->{strProjectLogoFile}))
+        {
+            my $strProjectLogoFileDestination = "$self->{strHtmlPath}/" . $self->{oManifest}->variableGet('project-logo');
+            copy($self->{strProjectLogoFile}, $strProjectLogoFileDestination)
+                or confess &log(ERROR, "unable to copy $self->{strProjectLogoFile} to ${strProjectLogoFileDestination}");
+        }
     }
 
     foreach my $strPageId ($self->{oManifest}->renderOutList(RENDER_TYPE_HTML))
@@ -127,9 +133,10 @@ sub process
 
         eval
         {
-            $strHtml =
-                $self->{oManifest}->variableReplace(
-                    (new BackRestDoc::Html::DocHtmlPage($self->{oManifest}, $strPageId, $self->{bExe}))->process());
+            $strHtml = $self->{oManifest}->variableReplace(
+                new BackRestDoc::Html::DocHtmlPage(
+                    $self->{oManifest}, $strPageId, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
+                    $bPretty)->process());
 
             return true;
         }
@@ -142,9 +149,10 @@ sub process
                 my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, $strPageId);
                 $self->{oManifest}->cacheReset($$oRenderOut{source});
 
-                $strHtml =
-                    $self->{oManifest}->variableReplace(
-                        (new BackRestDoc::Html::DocHtmlPage($self->{oManifest}, $strPageId, $self->{bExe}))->process());
+                $strHtml = $self->{oManifest}->variableReplace(
+                    new BackRestDoc::Html::DocHtmlPage(
+                        $self->{oManifest}, $strPageId, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
+                        $bPretty)->process());
             }
             else
             {

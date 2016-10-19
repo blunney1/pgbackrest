@@ -34,19 +34,29 @@ sub new
         $strOperation,
         $oManifest,
         $strRenderOutKey,
-        $bExe
+        $bExe,
+        $bCompact,
+        $strCss,
+        $bPretty,
     ) =
         logDebugParam
         (
             __PACKAGE__ . '->new', \@_,
             {name => 'oManifest'},
             {name => 'strRenderOutKey'},
-            {name => 'bExe'}
+            {name => 'bExe'},
+            {name => 'bCompact'},
+            {name => 'strCss'},
+            {name => 'bPretty'},
         );
 
     # Create the class hash
     my $self = $class->SUPER::new(RENDER_TYPE_HTML, $oManifest, $strRenderOutKey, $bExe);
     bless $self, $class;
+
+    $self->{bCompact} = $bCompact;
+    $self->{strCss} = $strCss;
+    $self->{bPretty} = $bPretty;
 
     # Return from function and log return values if any
     return logDebugReturn
@@ -82,7 +92,8 @@ sub process
          $self->{oManifest}->variableGet('project-favicon'),
          $self->{oManifest}->variableGet('project-logo'),
          trim($self->{oDoc}->fieldGet('description')),
-         $self->{bPretty});
+         $self->{bPretty},
+         $self->{bCompact} ? $self->{strCss} : undef);
 
     # Generate header
     my $oPageHeader = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-header');
