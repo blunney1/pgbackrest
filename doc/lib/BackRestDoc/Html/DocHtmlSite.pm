@@ -134,6 +134,7 @@ sub process
         &log(INFO, "    render out: ${strPageId}");
 
         my $strHtml;
+        my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, $strPageId);
 
         eval
         {
@@ -165,7 +166,8 @@ sub process
         };
 
         # Save the html page
-        fileStringWrite("$self->{strHtmlPath}/${strPageId}.html", $strHtml, false);
+        my $strFile = "$self->{strHtmlPath}/" . (defined($$oRenderOut{file}) ? $$oRenderOut{file} : "${strPageId}.html");
+        fileStringWrite($strFile, $strHtml, false);
     }
 
     # Return from function and log return values if any
