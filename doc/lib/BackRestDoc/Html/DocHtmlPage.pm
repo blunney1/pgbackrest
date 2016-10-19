@@ -34,6 +34,7 @@ sub new
         $strOperation,
         $oManifest,
         $strRenderOutKey,
+        $bMenu,
         $bExe,
         $bCompact,
         $strCss,
@@ -44,6 +45,7 @@ sub new
             __PACKAGE__ . '->new', \@_,
             {name => 'oManifest'},
             {name => 'strRenderOutKey'},
+            {name => 'bMenu'},
             {name => 'bExe'},
             {name => 'bCompact'},
             {name => 'strCss'},
@@ -54,6 +56,7 @@ sub new
     my $self = $class->SUPER::new(RENDER_TYPE_HTML, $oManifest, $strRenderOutKey, $bExe);
     bless $self, $class;
 
+    $self->{bMenu} = $bMenu;
     $self->{bCompact} = $bCompact;
     $self->{strCss} = $strCss;
     $self->{bPretty} = $bPretty;
@@ -118,27 +121,30 @@ sub process
     }
 
     # Generate menu
-    my $oMenuBody = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-menu')->addNew(HTML_DIV, 'menu-body');
-
-    if ($self->{strRenderOutKey} ne 'index')
+    if ($self->{bMenu})
     {
-        # my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, 'index');
-        #
-        # $oMenuBody->
-        #     addNew(HTML_DIV, 'menu')->
-        #         addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => '{[project-url-root]}'});
-    }
+        my $oMenuBody = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-menu')->addNew(HTML_DIV, 'menu-body');
 
-    # ??? The sort order here is hokey and only works for backrest - will need to be changed
-    foreach my $strRenderOutKey (sort {$b cmp $a} $self->{oManifest}->renderOutList(RENDER_TYPE_HTML))
-    {
-        if ($strRenderOutKey ne $self->{strRenderOutKey} && $strRenderOutKey ne 'index')
+        if ($self->{strRenderOutKey} ne 'index')
         {
-            my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, $strRenderOutKey);
+            my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, 'index');
 
             $oMenuBody->
                 addNew(HTML_DIV, 'menu')->
-                    addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => "${strRenderOutKey}.html"});
+                    addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => '{[project-url-root]}'});
+        }
+
+        # ??? The sort order here is hokey and only works for backrest - will need to be changed
+        foreach my $strRenderOutKey (sort {$b cmp $a} $self->{oManifest}->renderOutList(RENDER_TYPE_HTML))
+        {
+            if ($strRenderOutKey ne $self->{strRenderOutKey} && $strRenderOutKey ne 'index')
+            {
+                my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, $strRenderOutKey);
+
+                $oMenuBody->
+                    addNew(HTML_DIV, 'menu')->
+                        addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => "${strRenderOutKey}.html"});
+            }
         }
     }
 

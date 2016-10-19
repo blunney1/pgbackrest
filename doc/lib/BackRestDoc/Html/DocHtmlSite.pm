@@ -98,8 +98,12 @@ sub process
     # Assign function parameters, defaults, and log debug info
     my $strOperation = logDebugParam(__PACKAGE__ . '->process');
 
-    my $bPretty = ${$self->{oManifest}->renderGet(RENDER_TYPE_HTML)}{&RENDER_PRETTY};
-    my $bCompact = ${$self->{oManifest}->renderGet(RENDER_TYPE_HTML)}{&RENDER_COMPACT};
+    # Get render options
+    my $oRender = $self->{oManifest}->renderGet(RENDER_TYPE_HTML);
+
+    my $bMenu = $$oRender{&RENDER_MENU};
+    my $bPretty = $$oRender{&RENDER_PRETTY};
+    my $bCompact = $$oRender{&RENDER_COMPACT};
 
     if (!$bCompact)
     {
@@ -135,7 +139,7 @@ sub process
         {
             $strHtml = $self->{oManifest}->variableReplace(
                 new BackRestDoc::Html::DocHtmlPage(
-                    $self->{oManifest}, $strPageId, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
+                    $self->{oManifest}, $strPageId, $bMenu, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
                     $bPretty)->process());
 
             return true;
@@ -151,7 +155,7 @@ sub process
 
                 $strHtml = $self->{oManifest}->variableReplace(
                     new BackRestDoc::Html::DocHtmlPage(
-                        $self->{oManifest}, $strPageId, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
+                        $self->{oManifest}, $strPageId, $bMenu, $self->{bExe}, $bCompact, fileStringRead($self->{strCssFile}),
                         $bPretty)->process());
             }
             else
