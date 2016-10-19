@@ -5,8 +5,8 @@
 
     <variable-list>
         <!-- Variables used by the rest of the script -->
-        <variable key="user-guide-subtitle" keyword="default">Debian &amp; Ubuntu</variable>
-        <variable key="user-guide-subtitle" keyword="co6">RHEL &amp; CentOS 6</variable>
+        <variable key="user-guide-subtitle" keyword="default">Debian &amp;amp; Ubuntu</variable>
+        <variable key="user-guide-subtitle" keyword="co6">RHEL &amp;amp; CentOS 6</variable>
 
         <variable key="user-guide-os" keyword="default">Debian/Ubuntu</variable>
         <variable key="user-guide-os" keyword="co6">RHEL/CentOS 6</variable>

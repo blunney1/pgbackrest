@@ -90,13 +90,15 @@ sub process
     my $strSubTitle = $oPage->paramGet('subtitle', false);
 
     my $oHtmlBuilder = new BackRestDoc::Html::DocHtmlBuilder(
-        "{[project]} - Reliable PostgreSQL Backup & Restore",
-         $strTitle . (defined($strSubTitle) ? " - ${strSubTitle}" : ''),
-         $self->{oManifest}->variableGet('project-favicon'),
-         $self->{oManifest}->variableGet('project-logo'),
-         trim($self->{oDoc}->fieldGet('description')),
-         $self->{bPretty},
-         $self->{bCompact} ? $self->{strCss} : undef);
+        $self->{oManifest}->variableReplace('{[project]}' . (defined($self->{oManifest}->variableGet('project-tagline')) ?
+            $self->{oManifest}->variableGet('project-tagline') : '')),
+        $self->{oManifest}->variableReplace($strTitle . (defined($strSubTitle) ? " - ${strSubTitle}" : '')),
+        $self->{oManifest}->variableGet('project-favicon'),
+        $self->{oManifest}->variableGet('project-logo'),
+        $self->{oManifest}->variableReplace(trim($self->{oDoc}->fieldGet('description'))),
+        $self->{bPretty},
+        $self->{bCompact},
+        $self->{bCompact} ? $self->{strCss} : undef);
 
     # Generate header
     my $oPageHeader = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-header');
@@ -228,7 +230,7 @@ sub sectionProcess
     # Working variables
     $strAnchor =
         ($oSection->paramTest(XML_SECTION_PARAM_ANCHOR, XML_SECTION_PARAM_ANCHOR_VALUE_NOINHERIT) ? '' :
-            (defined($strAnchor) ? "${strAnchor}/" : '')) .
+            (defined($strAnchor) ? "${strAnchor}." : '')) .
         $oSection->paramGet('id');
 
     # Create the section toc element
