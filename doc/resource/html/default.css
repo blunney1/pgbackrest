@@ -140,7 +140,7 @@ Table of Contents
 {
     display: inline;
     font-size: 14pt;
-    margin-right: .75em;
+    margin-right: .5em;
 }
 
 .section1-toc-title
@@ -157,7 +157,7 @@ Table of Contents
 .section2-toc-number
 {
     display: inline;
-    margin-right: .75em;
+    margin-right: .5em;
 }
 
 .section2-toc-title
@@ -173,7 +173,7 @@ Table of Contents
 .section3-toc-number
 {
     display: inline;
-    margin-right: .75em;
+    margin-right: .5em;
 }
 
 .section3-toc-title
@@ -218,7 +218,7 @@ Section
 .section1-number, .section2-number, .section3-number
 {
     display: inline;
-    margin-right: .75em;
+    margin-right: .5em;
 }
 
 .section1-title, .section2-title, .section3-title
