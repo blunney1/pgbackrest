@@ -111,11 +111,11 @@ sub process
 
     if ($self->{strRenderOutKey} ne 'index')
     {
-        my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, 'index');
-
-        $oMenuBody->
-            addNew(HTML_DIV, 'menu')->
-                addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => '{[project-url-root]}'});
+        # my $oRenderOut = $self->{oManifest}->renderOutGet(RENDER_TYPE_HTML, 'index');
+        #
+        # $oMenuBody->
+        #     addNew(HTML_DIV, 'menu')->
+        #         addNew(HTML_A, 'menu-link', {strContent => $$oRenderOut{menu}, strRef => '{[project-url-root]}'});
     }
 
     # ??? The sort order here is hokey and only works for backrest - will need to be changed
@@ -134,13 +134,11 @@ sub process
     # Generate table of contents
     my $oPageTocBody;
 
-    if (!defined($oPage->paramGet('toc', false)) || $oPage->paramGet('toc') eq 'y')
+    if ($self->{bToc})
     {
         my $oPageToc = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-toc');
 
-        $oPageToc->
-            addNew(HTML_DIV, 'page-toc-title',
-                   {strContent => "Table of Contents"});
+        $oPageToc->addNew(HTML_DIV, 'page-toc-header')->addNew(HTML_DIV, 'page-toc-title', {strContent => "Table of Contents"});
 
         $oPageTocBody = $oPageToc->
             addNew(HTML_DIV, 'page-toc-body');
@@ -148,12 +146,13 @@ sub process
 
     # Generate body
     my $oPageBody = $oHtmlBuilder->bodyGet()->addNew(HTML_DIV, 'page-body');
+    my $iSectionNo = 1;
 
     # Render sections
     foreach my $oSection ($oPage->nodeList('section'))
     {
         my ($oChildSectionElement, $oChildSectionTocElement) =
-            $self->sectionProcess($oSection, undef, 1);
+            $self->sectionProcess($oSection, undef, "${iSectionNo}", 1);
 
         $oPageBody->add($oChildSectionElement);
 
@@ -161,6 +160,8 @@ sub process
         {
             $oPageTocBody->add($oChildSectionTocElement);
         }
+
+        $iSectionNo++;
     }
 
     my $oPageFooter = $oHtmlBuilder->bodyGet()->
@@ -188,6 +189,7 @@ sub sectionProcess
         $strOperation,
         $oSection,
         $strAnchor,
+        $strSectionNo,
         $iDepth
     ) =
         logDebugParam
@@ -195,6 +197,7 @@ sub sectionProcess
             __PACKAGE__ . '->sectionProcess', \@_,
             {name => 'oSection'},
             {name => 'strAnchor', required => false},
+            {name => 'strSectionNo'},
             {name => 'iDepth'}
         );
 
@@ -221,18 +224,26 @@ sub sectionProcess
     $oSectionElement->addNew(HTML_A, undef, {strId => $strAnchor});
 
     # Add the section title to section and toc
+    my $oSectionHeaderElement = $oSectionElement->addNew(HTML_DIV, "section${iDepth}-header");
     my $strSectionTitle = $self->processText($oSection->nodeGet('title')->textGet());
 
-    $oSectionElement->
-        addNew(HTML_DIV, "section${iDepth}-title",
-               {strContent => $strSectionTitle});
+    if ($self->{bTocNumber})
+    {
+        $oSectionHeaderElement->addNew(HTML_DIV, "section${iDepth}-number", {strContent => $strSectionNo});
+    }
 
-    my $oTocSectionTitleElement = $oSectionTocElement->
-        addNew(HTML_DIV, "section${iDepth}-toc-title");
+    $oSectionHeaderElement->addNew(HTML_DIV, "section${iDepth}-title", {strContent => $strSectionTitle});
 
-    $oTocSectionTitleElement->
-        addNew(HTML_A, undef,
-               {strContent => $strSectionTitle, strRef => "#${strAnchor}"});
+    if ($self->{bTocNumber})
+    {
+        $oSectionTocElement->addNew(HTML_DIV, "section${iDepth}-toc-number", {strContent => $strSectionNo});
+    }
+
+    my $oTocSectionTitleElement = $oSectionTocElement->addNew(HTML_DIV, "section${iDepth}-toc-title");
+
+    $oTocSectionTitleElement->addNew(
+        HTML_A, undef,
+        {strContent => $strSectionTitle, strRef => "#${strAnchor}"});
 
     # Add the section intro if it exists
     if (defined($oSection->textGet(false)))
@@ -247,6 +258,7 @@ sub sectionProcess
 
     # Process each child
     my $oSectionBodyExe;
+    my $iSectionNo = 1;
 
     foreach my $oChild ($oSection->nodeList())
     {
@@ -449,7 +461,7 @@ sub sectionProcess
         elsif ($oChild->nameGet() eq 'section')
         {
             my ($oChildSectionElement, $oChildSectionTocElement) =
-                $self->sectionProcess($oChild, $strAnchor, $iDepth + 1);
+                $self->sectionProcess($oChild, $strAnchor, "${strSectionNo}.${iSectionNo}", $iDepth + 1);
 
             $oSectionBodyElement->add($oChildSectionElement);
 
@@ -457,6 +469,8 @@ sub sectionProcess
             {
                 $oSectionTocElement->add($oChildSectionTocElement);
             }
+
+            $iSectionNo++;
         }
         # Check if the child can be processed by a parent
         else
